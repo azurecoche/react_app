@@ -10,9 +10,11 @@ var reactify = require('reactify');
 var glob = require('glob');
 var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
+var sass = require('gulp-sass');
 
-// file and dir path of browserify
-var path = {
+
+// file and dir path_jsx of browserify
+var path_jsx = {
     OUT: 'app.js',
     OUT_PRODUCT: 'app.min.js',
     DEST_BUILD: './public/js',
@@ -21,7 +23,7 @@ var path = {
 
 // options of browserify
 var props = {
-    entries: path.ENTRY_POINT,
+    entries: path_jsx.ENTRY_POINT,
     transform: [reactify],
     debug: true,
     cache: {},
@@ -30,18 +32,22 @@ var props = {
 }
 
 var bundler = watchify(browserify(props));
-
 bundler.on('update', compile); // execute if there are some changes
-
 gulp.task('watchify', compile);
-gulp.task('default', ['watchify']);
+
+gulp.task('default', ['watchify', 'sass']);
+
+gulp.task('sass', function() {
+    return gulp.src('./public/scss/*.scss')
+        .pipe(sass())
+        .pipe(gulp.dest('./public/css'));
+});
 
 gulp.task('product', function(){
-    gulp.src(path.DEST_BUILD + '/*.js')
+    gulp.src(path_jsx.DEST_BUILD + '/*.js')
         .pipe(uglify({preserveComments: 'some'}))
         .pipe(concat('app.min.js'))
-        .pipe(gulp.dest(path.DEST_BUILD))
-    ;
+        .pipe(gulp.dest(path_jsx.DEST_BUILD));
 });
 
 function compile(){
@@ -51,9 +57,9 @@ function compile(){
             this.emit('end');
         })
         // //Pass desired output filename to vinyl-source-stream
-        .pipe(source(path.OUT))
+        .pipe(source(path_jsx.OUT))
         // show duration time and filename
-        .pipe(duration( 'compiled "' + path.OUT + '"' ))
+        .pipe(duration( 'compiled "' + path_jsx.OUT + '"' ))
         // output directory
-        .pipe(gulp.dest(path.DEST_BUILD));
+        .pipe(gulp.dest(path_jsx.DEST_BUILD));
 }
