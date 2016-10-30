@@ -4,3 +4,7 @@ Bride.iml
 
 # node
 node_modules
+
+# js,css
+*.js
+*.css
